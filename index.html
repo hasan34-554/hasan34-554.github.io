@@ -3,181 +3,184 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Portfolio of Md. Anamul Hasan, Quality Control Inspector specialising in food safety, canned food processing and technical quality systems.">
+  <meta name="theme-color" content="#102a43">
   <title>Md. Anamul Hasan | Quality Control Inspector</title>
-  <meta name="description" content="Portfolio of Md. Anamul Hasan, Quality Control Inspector specialising in canned sweet corn, mango and pineapple processing.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <!-- ============ NAVIGATION ============ -->
-  <header class="nav">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header class="nav" id="top">
     <div class="container nav-inner">
-      <a href="#home" class="logo">Anamul<span>.</span></a>
-      <button class="nav-toggle" aria-label="Toggle menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">&#9776;</button>
-      <nav class="nav-links">
+      <a href="#home" class="logo" aria-label="Md. Anamul Hasan home">AH<span>.</span></a>
+      <button class="nav-toggle" type="button" aria-label="Open navigation" aria-controls="primary-navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="nav-links" id="primary-navigation" aria-label="Main navigation">
         <a href="#about">About</a>
-        <a href="#skills">Skills</a>
+        <a href="#expertise">Expertise</a>
         <a href="#experience">Experience</a>
-        <a href="#tools">My Tools</a>
+        <a href="#tools">Tools</a>
         <a href="#education">Education</a>
         <a href="#contact">Contact</a>
       </nav>
     </div>
   </header>
 
-  <!-- ============ HERO ============ -->
-  <section id="home" class="hero">
-    <div class="container hero-inner">
-      <div class="hero-text">
-        <p class="eyebrow">Quality Control Inspector</p>
-        <h1>Md. Anamul <span class="accent">Hasan</span></h1>
-        <p class="lead">Expertise in canned sweet corn, mango and pineapple processing. I build trust through safe, consistent and reliable food products.</p>
-        <div class="hero-buttons">
-          <a href="#tools" class="btn btn-primary">See my tools</a>
-          <a href="#contact" class="btn btn-outline">Contact me</a>
+  <main id="main-content">
+    <section id="home" class="hero">
+      <div class="hero-glow hero-glow-one"></div>
+      <div class="hero-glow hero-glow-two"></div>
+      <div class="container hero-inner">
+        <div class="hero-copy reveal">
+          <p class="eyebrow"><span class="eyebrow-dot"></span> Quality control officer &amp; food safety</p>
+          <h1>Quality you can <span class="text-gradient">trust.</span></h1>
+          <p class="lead">Quality Control Inspector with hands-on experience in canned food manufacturing, in-process inspection, food safety monitoring and clear quality documentation.</p>
+          <div class="hero-buttons">
+            <a href="#experience" class="btn btn-primary">Explore my experience <span>↗</span></a>
+            <a href="#contact" class="btn btn-ghost">Let's connect</a>
+          </div>
+          <div class="hero-proof">
+            <div class="proof-item"><strong>GMP</strong><span>Quality mindset</span></div>
+            <div class="proof-item"><strong>HACCP</strong><span>Risk-focused</span></div>
+            <div class="proof-item"><strong>ISO 22000</strong><span>System-aware</span></div>
+          </div>
+        </div>
+        <div class="hero-visual reveal">
+          <div class="portrait-frame">
+            <div class="portrait-accent"></div>
+            <img src="profile.jpg" alt="Portrait of Md. Anamul Hasan, Quality Control Inspector" class="portrait">
+            <div class="portrait-caption">
+              <span class="status-dot"></span>
+              <span><strong>Current role</strong><small>Quality Control Inspector</small></span>
+            </div>
+          </div>
+          <div class="floating-note note-top"><strong>Detail-driven</strong></div>
+          <div class="floating-note note-bottom"><strong>Process-focused</strong></div>
         </div>
       </div>
-      <div class="hero-card">
-        <div class="avatar">AH</div>
-        <ul>
-          <li><strong>Company</strong> Spain Bangladesh Agro Industry Ltd</li>
-          <li><strong>Based in</strong> Dhaka, Bangladesh</li>
-          <li><strong>Degree</strong> B.Sc. Nutrition &amp; Food Engineering</li>
-        </ul>
-      </div>
-    </div>
-  </section>
+      <div class="scroll-cue" aria-hidden="true"><span></span> Scroll to explore</div>
+    </section>
 
-  <!-- ============ ABOUT ============ -->
-  <section id="about" class="section">
-    <div class="container">
-      <h2 class="section-title">About Me</h2>
-      <div class="about-grid">
-        <div>
-          <p>I am a Quality Control Inspector at <strong>Spain Bangladesh Agro Industries Ltd.</strong>, responsible for product quality, food safety and compliance throughout the manufacturing process of canned food products, particularly sweet corn, pineapple and mango.</p>
-          <p>I believe quality is not only about meeting specifications but also about building consumer trust. I perform inspections across the production line, monitor critical control points, verify product specifications, conduct can seam inspections, check raw materials and finished products, and maintain quality records.</p>
-          <p>I work closely with production teams to identify quality issues, apply corrective actions and support continuous improvement. I'm always open to connecting with professionals and researchers who share an interest in food quality, food safety and manufacturing excellence.</p>
-        </div>
-        <div class="stats">
-          <div class="stat"><span>3</span>Core products<br>Corn · Mango · Pineapple</div>
-          <div class="stat"><span>GMP</span>HACCP · ISO 22000</div>
-          <div class="stat"><span>B.Sc.</span>Nutrition &amp; Food Engineering</div>
+    <section class="trust-bar" aria-label="Professional focus areas">
+      <div class="container trust-inner">
+        <span class="trust-label">Focused on</span>
+        <div class="trust-items">
+          <span>Food safety</span><i></i><span>Process control</span><i></i><span>Technical documentation</span><i></i><span>Continuous improvement</span>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ============ SKILLS ============ -->
-  <section id="skills" class="section alt">
-    <div class="container">
-      <h2 class="section-title">Skills &amp; Expertise</h2>
-      <div class="cards">
-        <article class="card">
-          <h3>Quality Control</h3>
-          <p>In-process inspection, product specification checks, raw material and finished product inspection, quality records.</p>
-        </article>
-        <article class="card">
-          <h3>Can Seam Inspection</h3>
-          <p>Seam inspection and verification for canned products to ensure hermetic, safe packaging.</p>
-        </article>
-        <article class="card">
-          <h3>Food Safety Systems</h3>
-          <p>Good Manufacturing Practices (GMP), HACCP, ISO 22000 Food Safety Management Systems.</p>
-        </article>
-        <article class="card">
-          <h3>Process Monitoring</h3>
-          <p>Monitoring critical control points, sanitation procedures and hygienic production environments.</p>
-        </article>
-        <article class="card">
-          <h3>Fruit &amp; Vegetable Processing</h3>
-          <p>Canned sweet corn, mango and pineapple processing.</p>
-        </article>
-        <article class="card">
-          <h3>Teamwork &amp; Communication</h3>
-          <p>Problem-solving, attention to detail and cross-department collaboration for continuous improvement.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ EXPERIENCE ============ -->
-  <section id="experience" class="section">
-    <div class="container">
-      <h2 class="section-title">Experience</h2>
-      <div class="timeline">
-        <div class="timeline-item">
-          <span class="date">April 2026 – Present</span>
-          <h3>Quality Control Inspector</h3>
-          <p class="org">Spain Bangladesh Agro Industry Ltd</p>
-          <p>Ensuring product quality, food safety and compliance across the canned food production process.</p>
+    <section id="about" class="section about">
+      <div class="container">
+        <div class="section-heading reveal">
+          <p class="eyebrow">About me</p>
+          <h2>Quality is a habit,<br><em>not a final check.</em></h2>
         </div>
-        <div class="timeline-item">
-          <span class="date">Sept 2025 – Nov 2025</span>
-          <h3>Internship Trainee</h3>
-          <p class="org">Euro Foods Group · Ashulia, Savar</p>
-          <p>Hands-on industrial training in food manufacturing and quality practices.</p>
+        <div class="about-grid">
+          <div class="about-copy reveal">
+            <p>I am a Quality Control Inspector at <strong>Spain Bangladesh Agro Industry Ltd.</strong>, working across the manufacturing process for canned sweet corn, pineapple and mango products.</p>
+            <p>My work combines careful inspection with a practical understanding of food safety systems. I monitor critical control points, verify specifications, inspect can seams, check raw materials and finished products, and maintain clear quality records.</p>
+            <p>I enjoy turning observations into improvements that production teams can act on. My goal is simple: make quality standards clear, repeatable and dependable.</p>
+          </div>
+          <div class="about-stats reveal">
+            <div class="stat-card"><strong>03</strong><span>Core product categories</span><small>Sweet corn · Mango · Pineapple</small></div>
+            <div class="stat-card"><strong>CCP</strong><span>Risk-based monitoring</span><small>HACCP-informed process control</small></div>
+            <div class="stat-card"><strong>B.Sc.</strong><span>Nutrition &amp; Food Engineering</span><small>Daffodil International University</small></div>
+          </div>
         </div>
       </div>
+    </section>
 
-      <h3 class="sub-title">Certifications</h3>
-      <ul class="pill-list">
-        <li>ISO 22000:2018 Awareness</li>
-        <li>Nutrition Coordination in Emergencies Preparedness and Response</li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- ============ MEASUREMENT TOOLS ============ -->
-  <section id="tools" class="section alt">
-    <div class="container">
-      <h2 class="section-title">Measurement Tools</h2>
-      <p class="section-sub">Practical tools I designed for quality measurement and inspection.</p>
-
-      <div class="filters" id="tool-filters"></div>
-      <div class="cards" id="tools-grid"></div>
-      <p class="empty" id="tools-empty" hidden>No tools added yet. Open <code>tools.js</code> to add your first one.</p>
-    </div>
-  </section>
-
-  <!-- ============ EDUCATION ============ -->
-  <section id="education" class="section">
-    <div class="container">
-      <h2 class="section-title">Education</h2>
-      <div class="timeline">
-        <div class="timeline-item">
-          <span class="date">Jan 2022 – Dec 2025</span>
-          <h3>Bachelor's Degree, Nutrition and Food Engineering</h3>
-          <p class="org">Daffodil International University (DIU)</p>
+    <section id="expertise" class="section section-dark">
+      <div class="container">
+        <div class="section-heading light-heading reveal">
+          <p class="eyebrow">Expertise</p>
+          <h2>Where I create<br><em>the most value.</em></h2>
         </div>
-        <div class="timeline-item">
-          <span class="date">June 2018 – June 2020</span>
-          <h3>Higher School Certificate, Science</h3>
-          <p class="org">Amanullah College</p>
-        </div>
-        <div class="timeline-item">
-          <span class="date">Jan 2013 – Dec 2018</span>
-          <h3>Secondary School Certificate, Science</h3>
-          <p class="org">Atorkhali High School</p>
+        <div class="expertise-grid">
+          <article class="expertise-card reveal"><h3>Quality control</h3><p>In-process inspections, product specification checks, raw material and finished product verification, and accurate quality records.</p><span class="card-link">Inspection systems <b>↗</b></span></article>
+          <article class="expertise-card reveal"><h3>Food safety systems</h3><p>Applying GMP, HACCP principles and ISO 22000 awareness to support hygienic, compliant and consistent production.</p><span class="card-link">Safety first <b>↗</b></span></article>
+          <article class="expertise-card reveal"><h3>Can seam inspection</h3><p>Checking seam measurements and packaging integrity to help ensure hermetic, safe canned products.</p><span class="card-link">Precision matters <b>↗</b></span></article>
+          <article class="expertise-card reveal"><h3>Process improvement</h3><p>Working with production teams to identify issues, support corrective actions and reduce avoidable variation and waste.</p><span class="card-link">Better every batch <b>↗</b></span></article>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ============ CONTACT ============ -->
-  <section id="contact" class="section contact">
-    <div class="container">
-      <h2 class="section-title light">Let's Connect</h2>
-      <p class="section-sub light">Open to connecting with professionals, researchers and industry experts in food quality and safety.</p>
-      <div class="contact-links">
-        <a href="mailto:804ana@gmail.com" class="btn btn-light">804ana@gmail.com</a>
-        <a href="tel:+8801975123610" class="btn btn-light">01975123610</a>
-        <a href="https://www.linkedin.com/in/anamul554" target="_blank" rel="noopener" class="btn btn-light">LinkedIn</a>
+    <section id="experience" class="section">
+      <div class="container split-layout">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Experience</p>
+          <h2>A foundation built<br><em>on the factory floor.</em></h2>
+          <p class="section-intro">Hands-on experience in food manufacturing, inspection, food safety monitoring and quality documentation.</p>
+        </div>
+        <div class="timeline reveal">
+          <article class="timeline-item">
+            <span class="timeline-date">Apr 2026 — Present</span>
+            <h3>Quality Control Inspector</h3>
+            <p class="org">Spain Bangladesh Agro Industry Ltd</p>
+            <p>Ensuring product quality, food safety and compliance across the canned food production process.</p>
+          </article>
+          <article class="timeline-item">
+            <span class="timeline-date">Sep 2025 — Nov 2025</span>
+            <h3>Internship Trainee</h3>
+            <p class="org">Euro Foods Group · Ashulia, Savar</p>
+            <p>Built hands-on industrial experience in food manufacturing operations and quality practices.</p>
+          </article>
+          <div class="certifications">
+            <span class="mini-label">Certifications &amp; training</span>
+            <div class="pill-list"><span>ISO 22000:2018 Awareness</span><span>Nutrition Coordination in Emergencies</span></div>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <section id="tools" class="section tools-section">
+      <div class="container">
+        <div class="section-heading reveal">
+          <p class="eyebrow">My tools</p>
+          <h2>Small tools for<br><em>better decisions.</em></h2>
+          <p class="section-intro">I build practical digital tools that make measurements easier to calculate, review and communicate.</p>
+        </div>
+        <div class="filters" id="tool-filters" aria-label="Filter tools" role="group"></div>
+        <div class="cards tools-grid" id="tools-grid"></div>
+        <p class="empty" id="tools-empty" hidden>No tools added yet.</p>
+      </div>
+    </section>
+
+    <section id="education" class="section education-section">
+      <div class="container split-layout">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Education</p>
+          <h2>Learning that<br><em>supports practice.</em></h2>
+        </div>
+        <div class="education-list reveal">
+          <article class="education-item"><span>2022 — 2025</span><div><h3>Bachelor's in Nutrition and Food Engineering</h3><p>Daffodil International University (DIU)</p></div></article>
+          <article class="education-item"><span>2018 — 2020</span><div><h3>Higher School Certificate, Science</h3><p>Amanullah College</p></div></article>
+          <article class="education-item"><span>2013 — 2018</span><div><h3>Secondary School Certificate, Science</h3><p>Atorkhali High School</p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="contact-section">
+      <div class="container contact-inner reveal">
+        <p class="eyebrow light-eyebrow">Contact</p>
+        <h2>Let's make quality<br><em>visible.</em></h2>
+        <p>Open to connecting with professionals, researchers and industry experts in food quality and safety.</p>
+        <div class="contact-links">
+          <a href="mailto:804ana@gmail.com" class="contact-link">804ana@gmail.com <span>↗</span></a>
+          <a href="tel:+8801975123610" class="contact-link">01975123610 <span>↗</span></a>
+          <a href="https://www.linkedin.com/in/anamul554" target="_blank" rel="noopener" class="contact-link">LinkedIn <span>↗</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <footer class="footer">
-    <div class="container">© <span id="year"></span> Md. Anamul Hasan. All rights reserved.</div>
+    <div class="container footer-inner"><span>© <span id="year"></span> Md. Anamul Hasan</span><a href="#top">Back to top ↑</a></div>
   </footer>
 
   <script src="tools.js"></script>

@@ -1,68 +1,106 @@
-// Renders the tool cards from tools.js. You normally don't need to edit this file.
+const year = document.getElementById("year");
+const navToggle = document.querySelector(".nav-toggle");
+const navLinks = document.querySelector(".nav-links");
+const revealItems = document.querySelectorAll(".reveal");
+const sections = [...document.querySelectorAll("main section[id]")];
+const sectionLinks = [...document.querySelectorAll(".nav-links a")];
 
-document.getElementById("year").textContent = new Date().getFullYear();
+year.textContent = new Date().getFullYear();
 
-const grid = document.getElementById("tools-grid");
-const filters = document.getElementById("tool-filters");
-const emptyMsg = document.getElementById("tools-empty");
-
-function esc(text) {
-  const d = document.createElement("div");
-  d.textContent = text == null ? "" : String(text);
-  return d.innerHTML;
+function escapeHtml(text) {
+  const element = document.createElement("div");
+  element.textContent = text == null ? "" : String(text);
+  return element.innerHTML;
 }
 
-function toolCard(t) {
-  const visual = t.image
-    ? `<img src="${esc(t.image)}" alt="${esc(t.name)}" loading="lazy">`
-    : esc(t.icon || "🛠️");
-
-  const specs = (t.specs && t.specs.length)
-    ? `<ul class="tool-specs">${t.specs.map(s => {
-        const i = s.indexOf(":");
-        return i > -1
-          ? `<li><b>${esc(s.slice(0, i))}:</b>${esc(s.slice(i + 1))}</li>`
-          : `<li>${esc(s)}</li>`;
+function renderToolCard(tool) {
+  const visual = tool.image
+    ? `<img src="${escapeHtml(tool.image)}" alt="${escapeHtml(tool.name)}" loading="lazy">`
+    : escapeHtml(tool.icon || "🛠️");
+  const specs = tool.specs && tool.specs.length
+    ? `<ul class="tool-specs">${tool.specs.map(spec => {
+        const separator = spec.indexOf(":");
+        return separator > -1
+          ? `<li><b>${escapeHtml(spec.slice(0, separator))}:</b>${escapeHtml(spec.slice(separator + 1))}</li>`
+          : `<li>${escapeHtml(spec)}</li>`;
       }).join("")}</ul>`
     : "";
-
-  const link = t.link
-    ? `<a class="btn btn-primary btn-small" href="${esc(t.link)}" target="_blank" rel="noopener">${esc(t.linkText || "Open")}</a>`
+  const link = tool.link
+    ? `<a class="btn btn-primary" href="${escapeHtml(tool.link)}">${escapeHtml(tool.linkText || "Open tool")} <span>↗</span></a>`
     : "";
 
   return `
-    <article class="card tool-card" data-cat="${esc(t.category || "")}">
+    <article class="card tool-card">
       <div class="tool-img">${visual}</div>
       <div class="tool-body">
-        ${t.category ? `<span class="tool-cat">${esc(t.category)}</span>` : ""}
-        <h3>${esc(t.name)}</h3>
-        <p>${esc(t.description)}</p>
+        ${tool.category ? `<span class="tool-cat">${escapeHtml(tool.category)}</span>` : ""}
+        <h3>${escapeHtml(tool.name)}</h3>
+        <p>${escapeHtml(tool.description)}</p>
         ${specs}
         ${link}
       </div>
     </article>`;
 }
 
-function render(category) {
-  const list = category === "All" ? TOOLS : TOOLS.filter(t => t.category === category);
-  grid.innerHTML = list.map(toolCard).join("");
-  emptyMsg.hidden = TOOLS.length > 0;
+function renderTools(category = "All") {
+  const grid = document.getElementById("tools-grid");
+  const filters = document.getElementById("tool-filters");
+  const empty = document.getElementById("tools-empty");
+  const visibleTools = category === "All" ? TOOLS : TOOLS.filter(tool => tool.category === category);
+  grid.innerHTML = visibleTools.map(renderToolCard).join("");
+  empty.hidden = TOOLS.length > 0;
+  const categories = [...new Set(TOOLS.map(tool => tool.category).filter(Boolean))];
+  if (categories.length < 2) {
+    filters.innerHTML = "";
+    return;
+  }
+  filters.innerHTML = ["All", ...categories].map(item =>
+    `<button class="filter-btn${item === category ? " active" : ""}" type="button" data-category="${escapeHtml(item)}">${escapeHtml(item)}</button>`
+  ).join("");
 }
 
-function buildFilters() {
-  const cats = [...new Set(TOOLS.map(t => t.category).filter(Boolean))];
-  if (cats.length < 2) { filters.innerHTML = ""; return; }
-  filters.innerHTML = ["All", ...cats]
-    .map((c, i) => `<button class="filter-btn${i === 0 ? " active" : ""}" data-cat="${esc(c)}">${esc(c)}</button>`)
-    .join("");
-  filters.addEventListener("click", e => {
-    const btn = e.target.closest(".filter-btn");
-    if (!btn) return;
-    filters.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    render(btn.dataset.cat);
+navToggle.addEventListener("click", () => {
+  const isOpen = navLinks.classList.toggle("open");
+  navToggle.setAttribute("aria-expanded", String(isOpen));
+  navToggle.setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
+});
+
+navLinks.addEventListener("click", event => {
+  if (event.target.matches("a")) {
+    navLinks.classList.remove("open");
+    navToggle.setAttribute("aria-expanded", "false");
+    navToggle.setAttribute("aria-label", "Open navigation");
+  }
+});
+
+const sectionObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    sectionLinks.forEach(link => {
+      const isCurrent = link.getAttribute("href") === `#${entry.target.id}`;
+      link.classList.toggle("active", isCurrent);
+      if (isCurrent) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
   });
-}
+}, { rootMargin: "-35% 0px -55% 0px", threshold: 0 });
 
-buildFilters();
-render("All");
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("visible");
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+revealItems.forEach(item => revealObserver.observe(item));
+sections.forEach(section => sectionObserver.observe(section));
+
+document.getElementById("tool-filters").addEventListener("click", event => {
+  const button = event.target.closest("[data-category]");
+  if (!button) return;
+  renderTools(button.dataset.category);
+});
+
+renderTools();
