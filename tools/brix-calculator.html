@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Brix / Soluble Solids Calculator</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f6f8fb;
+      --surface: #fff;
+      --text: #202a36;
+      --muted: #5d6b7b;
+      --border: #dce3eb;
+      --accent: #1769c2;
+      --accent-hover: #1059a8;
+      --accent-soft: #eaf3fc;
+      --error: #b42318;
+      --error-soft: #fff0ee;
+      --radius: 14px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #191919;
+        --surface: #202020;
+        --text: #f4f4f2;
+        --muted: #c0c0bb;
+        --border: #454542;
+        --accent: #70b3ff;
+        --accent-hover: #a0ceff;
+        --accent-soft: #263747;
+        --error: #ff8c82;
+        --error-soft: #422a28;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px 20px;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(100%, 700px); margin: 0 auto; }
+    a { color: var(--accent); font-weight: 650; text-decoration: none; }
+    .intro { margin: 0 0 16px; }
+    .eyebrow { margin: 0 0 6px; color: var(--accent); font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(1.8rem, 5vw, 2.25rem); line-height: 1.15; letter-spacing: -.03em; }
+    .intro p:last-child { max-width: 58ch; margin: 10px 0 0; color: var(--muted); }
+    .panel { padding: clamp(20px, 4vw, 24px); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: 0 2px 8px rgb(20 35 50 / 4%); }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    label { display: block; margin: 0 0 6px; font-size: .95rem; font-weight: 650; }
+    input, select { width: 100%; min-height: 48px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); color: var(--text); font: inherit; }
+    input:focus-visible, select:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+    button { min-height: 48px; padding: 10px 18px; border: 1px solid transparent; border-radius: 9px; font: inherit; font-weight: 650; cursor: pointer; }
+    .primary { flex: 1 1 220px; background: var(--accent); color: #fff; }
+    .primary:hover { background: var(--accent-hover); }
+    .secondary { border-color: var(--border); background: var(--surface); color: var(--text); }
+    .secondary:hover { background: var(--accent-soft); }
+    .result { margin-top: 24px; padding: 20px; border-radius: 12px; background: var(--accent-soft); }
+    .result[hidden] { display: none; }
+    .result.error { color: var(--error); background: var(--error-soft); }
+    .result h2 { margin: 0; font-size: 1rem; }
+    .result-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+    .result-grid div { padding-top: 10px; border-top: 1px solid var(--border); }
+    .result-grid span { display: block; color: var(--muted); font-size: .85rem; }
+    .result-grid strong { display: block; margin-top: 2px; font-size: 1.15rem; }
+    .credit { margin: 16px 0 0; color: var(--muted); font-size: .9rem; text-align: center; }
+    @media (max-width: 560px) {
+      body { padding: 24px 16px; }
+      .grid, .result-grid { grid-template-columns: 1fr; gap: 14px; }
+      .actions { flex-direction: column; }
+      .actions button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p style="margin:0 0 18px"><a href="../index.html">← Back to portfolio</a></p>
+    <header class="intro">
+      <p class="eyebrow">Food quality tool</p>
+      <h1>Brix / soluble solids calculator</h1>
+      <p>Convert a sample mass and refractometer reading into soluble-solids and water mass. Use the same mass unit for every input.</p>
+    </header>
+
+    <section class="panel" aria-label="Brix calculator">
+      <form id="calculator" novalidate>
+        <div class="grid">
+          <div>
+            <label for="mass">Sample mass</label>
+            <input id="mass" type="number" min="0" step="any" inputmode="decimal" required>
+          </div>
+          <div>
+            <label for="brix">Brix reading (%)</label>
+            <input id="brix" type="number" min="0" max="100" step="any" inputmode="decimal" required>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="primary" type="submit">Calculate solids</button>
+          <button class="secondary" type="button" id="reset">Clear values</button>
+        </div>
+      </form>
+
+      <section class="result" id="result" aria-live="polite" hidden>
+        <h2 id="result-title">Calculated result</h2>
+        <div class="result-grid">
+          <div><span>Soluble-solids mass</span><strong id="solids"></strong></div>
+          <div><span>Water mass</span><strong id="water"></strong></div>
+        </div>
+      </section>
+    </section>
+    <footer class="credit">Developed by Anamul</footer>
+  </main>
+
+  <script>
+    (() => {
+      const form = document.getElementById("calculator");
+      const result = document.getElementById("result");
+      const title = document.getElementById("result-title");
+      const solids = document.getElementById("solids");
+      const water = document.getElementById("water");
+
+      function showError(message) {
+        result.hidden = false;
+        result.classList.add("error");
+        title.textContent = message;
+        solids.textContent = "";
+        water.textContent = "";
+      }
+
+      form.addEventListener("submit", event => {
+        event.preventDefault();
+        const mass = Number(document.getElementById("mass").value);
+        const brix = Number(document.getElementById("brix").value);
+        if (!Number.isFinite(mass) || !Number.isFinite(brix) || mass < 0 || brix < 0 || brix > 100) {
+          showError("Enter a valid mass and a Brix reading from 0 to 100.");
+          return;
+        }
+        result.classList.remove("error");
+        result.hidden = false;
+        title.textContent = "Calculated result";
+        solids.textContent = `${(mass * brix / 100).toFixed(2)} mass units`;
+        water.textContent = `${(mass * (1 - brix / 100)).toFixed(2)} mass units`;
+      });
+
+      document.getElementById("reset").addEventListener("click", () => {
+        form.reset();
+        result.hidden = true;
+        result.classList.remove("error");
+      });
+    })();
+  </script>
+</body>
+</html>

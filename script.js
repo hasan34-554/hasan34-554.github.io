@@ -48,7 +48,7 @@ function renderTools(category = "All") {
   const empty = document.getElementById("tools-empty");
   const visibleTools = category === "All" ? TOOLS : TOOLS.filter(tool => tool.category === category);
   grid.innerHTML = visibleTools.map(renderToolCard).join("");
-  empty.hidden = TOOLS.length > 0;
+  empty.hidden = visibleTools.length > 0;
   const categories = [...new Set(TOOLS.map(tool => tool.category).filter(Boolean))];
   if (categories.length < 2) {
     filters.innerHTML = "";

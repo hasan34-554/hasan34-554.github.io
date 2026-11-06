@@ -50,5 +50,20 @@ const TOOLS = [
     ],
     link: "tools/brix-calculator.html",
     linkText: "Open calculator"
+  },
+  {
+    name: "Pineapple Canning QC Calculator",
+    category: "Food Quality",
+    description: "Estimate fruit solids, syrup solids, required syrup Brix and sugar quantity for pineapple canning batches.",
+    icon: "🍍",
+    image: "",
+    specs: [
+      "Inputs: Fruit, juice and target Brix",
+      "Checks: Slice, net and liquid weight",
+      "Output: Syrup and sugar requirements",
+      "Action: Print the calculation"
+    ],
+    link: "tools/Pineapple%20bricks%20claculator.html",
+    linkText: "Open calculator"
   }
 ];
