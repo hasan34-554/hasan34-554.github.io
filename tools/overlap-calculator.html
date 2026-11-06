@@ -21,6 +21,7 @@
       --error-soft: #fff0ee;
       --success: #1769c2;
       --focus: #1769c2;
+      --th-bg: #1976d2;
       --radius: 14px;
     }
     @media (prefers-color-scheme: dark) {
@@ -38,6 +39,7 @@
         --error-soft: #422a28;
         --success: #9acaff;
         --focus: #9acaff;
+        --th-bg: #1769c2;
       }
     }
     * { box-sizing: border-box; }
@@ -66,7 +68,7 @@
     .hint { margin: 6px 0 0; color: var(--muted); font-size: .9rem; }
     label { display: block; margin: 0 0 6px; font-size: .95rem; font-weight: 650; }
     .label-note { color: var(--muted); font-weight: 400; }
-    select, input[type="number"] {
+    select, input[type="number"], input[type="text"] {
       width: 100%;
       min-height: 48px;
       padding: 10px 12px;
@@ -80,7 +82,6 @@
       outline: 3px solid var(--focus);
       outline-offset: 2px;
     }
-    .can-select { max-width: 320px; }
     .grid { display: grid; gap: 16px; }
     .grid-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .grid-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -120,9 +121,6 @@
     .calculation div { padding-top: 12px; border-top: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); }
     .calculation dt { color: var(--muted); font-size: .85rem; }
     .calculation dd { margin: 2px 0 0; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-variant-numeric: tabular-nums; }
-    .export-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 20px; }
-    .export-actions[hidden] { display: none; }
-    .export-actions .hint { margin: 0; }
     .formula { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
     .formula summary { width: fit-content; color: var(--accent); font-weight: 650; cursor: pointer; }
     .formula p { margin: 10px 0 0; color: var(--muted); }
@@ -132,13 +130,16 @@
     .history-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
     .history-head h2 { margin: 0; font-size: 1rem; }
     .clear-history { min-height: 40px; padding: 7px 12px; color: var(--accent); }
-    .history ol { margin: 0; padding-left: 28px; }
-    .history li { padding: 8px 0 8px 4px; border-bottom: 1px solid var(--border); color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-    .history li strong { color: var(--text); }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+    table.results { width: 100%; min-width: 480px; border-collapse: collapse; text-align: center; font-variant-numeric: tabular-nums; }
+    table.results th { padding: 12px 8px; background: var(--th-bg); color: #fff; font-weight: 700; }
+    table.results td { padding: 11px 8px; border-top: 1px solid var(--border); border-left: 1px solid var(--border); }
+    table.results td:first-child { border-left: 0; }
+    .export-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; }
+    .export-actions .hint { margin: 0; }
     @media (max-width: 560px) {
       body { padding: 24px 16px; }
       .grid-two, .grid-three { grid-template-columns: 1fr; gap: 14px; }
-      .can-select { max-width: none; }
       .actions { flex-direction: column; }
       .actions .primary { flex: 0 1 auto; }
       .actions .primary, .actions .secondary, .export-actions .secondary { width: 100%; }
@@ -161,15 +162,21 @@
       <form id="calculator" novalidate>
         <section aria-labelledby="setup-heading">
           <h2 class="section-heading" id="setup-heading">Can setup</h2>
-          <div class="field can-select">
-            <label for="can">Can code <span class="label-note">(optional preset)</span></label>
-            <select id="can" name="can">
-              <option value="15173">15173</option>
-              <option value="9118">9118</option>
-              <option value="custom">Custom</option>
-            </select>
-            <p class="hint" id="preset-hint">Preset thicknesses are filled in for you. You can adjust them if needed.</p>
+          <div class="grid grid-two">
+            <div class="field">
+              <label for="can">Can code <span class="label-note">(optional preset)</span></label>
+              <select id="can" name="can">
+                <option value="15173">15173</option>
+                <option value="9118">9118</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="inspector">Inspector name</label>
+              <input type="text" id="inspector" name="inspector" value="Md.Anamul Hasan" autocomplete="name">
+            </div>
           </div>
+          <p class="hint" id="preset-hint">Preset thicknesses are filled in for you. You can adjust them if needed.</p>
           <div class="grid grid-two" style="margin-top:16px">
             <div class="field">
               <label for="tb">Body thickness <span class="label-note">(tb)</span></label>
@@ -207,7 +214,7 @@
           <button class="primary" type="submit">Calculate overlap</button>
           <button class="secondary" type="button" id="reset">Clear seam measurements</button>
         </div>
-        <p class="hint">Clearing removes W, BH, CH, and the displayed result. Your can setup and result history stay unchanged.</p>
+        <p class="hint">Clearing removes W, BH, CH, and the displayed result. Your can setup and results table stay unchanged.</p>
       </form>
 
       <section class="result" id="result" aria-live="polite" aria-atomic="true" hidden>
@@ -215,26 +222,34 @@
         <p class="result-value" id="value"></p>
         <dl class="calculation" id="calculation" hidden>
           <div><dt>Numerator</dt><dd id="numerator"></dd></div>
-          <div><dt>Denominator</dt><dd id="denominator"></dd></div>
+          <div><dt>LBH (denominator)</dt><dd id="denominator"></dd></div>
         </dl>
-        <div class="export-actions" id="export-actions" hidden>
-          <button class="secondary" type="button" id="downloadPdf">Download PDF</button>
-          <p class="hint">Save this result and its measurements as a report.</p>
-        </div>
       </section>
 
       <details class="formula">
         <summary>Show formula</summary>
-        <p>Overlap is calculated as a percentage from the measurements entered above.</p>
-        <code>%OL = (BH + CH + 1.1 × tc − W) ÷ (W − (2.6 × tc + 1.1 × tb)) × 100</code>
+        <p>Overlap is calculated as a percentage from the measurements entered above. LBH is the denominator.</p>
+        <code>OI % = (BH + CH + 1.1 × tc − W) ÷ LBH × 100<br>LBH = W − (2.6 × tc + 1.1 × tb)</code>
       </details>
 
       <section class="history" id="history" aria-labelledby="history-heading" hidden>
         <div class="history-head">
-          <h2 id="history-heading">Recent results</h2>
-          <button class="secondary clear-history" type="button" id="clearHistory">Clear history</button>
+          <h2 id="history-heading">Results</h2>
+          <button class="secondary clear-history" type="button" id="clearHistory">Clear table</button>
         </div>
-        <ol id="history-list" aria-live="polite"></ol>
+        <div class="table-wrap">
+          <table class="results">
+            <thead>
+              <tr><th>SL</th><th>W</th><th>BH</th><th>CH</th><th>LBH</th><th>OI %</th></tr>
+            </thead>
+            <tbody id="history-list" aria-live="polite"></tbody>
+          </table>
+        </div>
+        <div class="export-actions">
+          <button class="secondary" type="button" id="downloadPdf">Download PDF</button>
+          <button class="secondary" type="button" id="downloadXlsx">Download Excel</button>
+          <p class="hint">Exports include date, can code and inspector name.</p>
+        </div>
       </section>
     </section>
     <footer class="credit">Developed by Anamul</footer>
@@ -248,7 +263,16 @@
         "9118": { tb: 0.23, tc: 0.24 }
       };
       const form = $("calculator");
-      let lastCalculation = null;
+      const rows = []; // { code, W, BH, CH, lbh, overlap }
+
+      const canCode = () => $("can").value === "custom" ? "Custom" : $("can").value;
+      const inspectorName = () => $("inspector").value.trim() || "Md.Anamul Hasan";
+      const pad = n => String(n).padStart(2, "0");
+      const fmt3 = n => n.toFixed(3);
+      const fmtPct = n => `${n.toFixed(2)}%`;
+      const codesText = () => [...new Set(rows.map(r => r.code))].join(", ");
+      const dateText = d => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+      const stampText = d => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
 
       function applyCan() {
         const preset = cans[$("can").value];
@@ -266,16 +290,12 @@
       }
 
       function clearResult() {
-        lastCalculation = null;
-        $("export-actions").hidden = true;
         $("result").hidden = true;
         $("result").classList.remove("error");
         $("calculation").hidden = true;
       }
 
       function showError(message, fieldId) {
-        lastCalculation = null;
-        $("export-actions").hidden = true;
         const result = $("result");
         result.hidden = false;
         result.classList.add("error");
@@ -285,15 +305,19 @@
         if (fieldId) $(fieldId).focus();
       }
 
-      function addHistory(code, W, BH, CH, overlap) {
-        const item = document.createElement("li");
-        const label = document.createElement("span");
-        const strong = document.createElement("strong");
-        label.textContent = `${code} · W ${W} · BH ${BH} · CH ${CH} → `;
-        strong.textContent = `${overlap.toFixed(2)}%`;
-        item.append(label, strong);
-        $("history-list").appendChild(item);
-        $("history").hidden = false;
+      function renderTable() {
+        const body = $("history-list");
+        body.replaceChildren();
+        rows.forEach((r, i) => {
+          const tr = document.createElement("tr");
+          [i + 1, fmt3(r.W), fmt3(r.BH), fmt3(r.CH), fmt3(r.lbh), fmtPct(r.overlap)].forEach(v => {
+            const td = document.createElement("td");
+            td.textContent = v;
+            tr.appendChild(td);
+          });
+          body.appendChild(tr);
+        });
+        $("history").hidden = rows.length === 0;
       }
 
       function calculate(event) {
@@ -332,112 +356,210 @@
         result.hidden = false;
         result.classList.remove("error");
         $("result-title").textContent = "Calculated overlap";
-        $("value").textContent = `${overlap.toFixed(2)}%`;
+        $("value").textContent = fmtPct(overlap);
         $("numerator").textContent = numerator.toFixed(4);
         $("denominator").textContent = denominator.toFixed(4);
         $("calculation").hidden = false;
-        lastCalculation = {
-          code: $("can").value === "custom" ? "Custom" : $("can").value,
-          W, BH, CH, tb, tc, numerator, denominator, overlap,
-          calculatedAt: new Date()
-        };
-        $("export-actions").hidden = false;
-        addHistory($("can").value === "custom" ? "Custom" : $("can").value, W, BH, CH, overlap);
+        rows.push({ code: canCode(), W, BH, CH, lbh: denominator, overlap });
+        renderTable();
       }
 
-      // A dependency-free, offline PDF report using standard PDF fonts.
-      function downloadPdf() {
-        if (!lastCalculation) return;
-        const r = lastCalculation;
-        const content = [];
-        const ink = "0.125 0.165 0.212";
-        const muted = "0.365 0.420 0.482";
-        const blue = "0.090 0.412 0.761";
-        const escapePdf = value => String(value)
-          .replace(/[^\x20-\x7E]/g, "?")
-          .replace(/([\\()])/g, "\\$1");
-        const text = (x, y, size, value, bold = false, color = ink) => {
-          content.push(`BT /${bold ? "F2" : "F1"} ${size} Tf ${color} rg 1 0 0 1 ${x} ${y} Tm (${escapePdf(value)}) Tj ET`);
-        };
-        const rect = (x, y, width, height, color) => content.push(`${color} rg ${x} ${y} ${width} ${height} re f`);
-        const line = (x1, y1, x2, y2) => content.push(`0.86 0.89 0.92 RG 0.7 w ${x1} ${y1} m ${x2} ${y2} l S`);
-        const calculated = r.calculatedAt.toLocaleString("en-GB", {
-          year: "numeric", month: "2-digit", day: "2-digit",
-          hour: "2-digit", minute: "2-digit", hour12: false
-        });
-
-        text(50, 789, 10, "SEAMING OVERLAP REPORT", true, blue);
-        text(50, 752, 26, "Measurement result", true);
-        text(50, 727, 10, `Calculated: ${calculated} (local time)`, false, muted);
-        text(50, 705, 11, `Can code: ${r.code}`, true);
-
-        rect(50, 570, 495, 108, "0.918 0.953 0.988");
-        text(70, 648, 11, "Calculated overlap", true, muted);
-        const percentage = `${r.overlap.toFixed(2)}%`;
-        text(70, 599, percentage.length > 14 ? 26 : 36, percentage, true, blue);
-
-        text(50, 537, 15, "Input measurements", true);
-        const rows = [
-          ["Body thickness (tb)", r.tb], ["Cover thickness (tc)", r.tc],
-          ["Seam width (W)", r.W], ["Body hook (BH)", r.BH],
-          ["Cover hook (CH)", r.CH]
-        ];
-        rows.forEach(([label, value], index) => {
-          const y = 508 - index * 31;
-          text(50, y, 11, label, false, muted);
-          text(350, y, 11, value, true);
-          line(50, y - 11, 545, y - 11);
-        });
-        text(50, 339, 10, "All measurements use the same unit entered in the calculator.", false, muted);
-
-        text(50, 302, 15, "Calculation details", true);
-        text(50, 278, 10, "%OL = (BH + CH + 1.1 * tc - W)");
-        text(50, 261, 10, "      / (W - (2.6 * tc + 1.1 * tb)) * 100");
-        text(50, 228, 11, "Numerator", false, muted);
-        text(350, 228, 11, r.numerator.toFixed(4), true);
-        text(50, 205, 11, "Denominator", false, muted);
-        text(350, 205, 11, r.denominator.toFixed(4), true);
-
-        line(50, 86, 545, 86);
-        text(50, 63, 10, "Developed by Anamul", true, muted);
-        text(465, 63, 10, "Page 1 of 1", false, muted);
-
-        const stream = content.join("\n") + "\n";
-        const encoder = new TextEncoder();
-        const objects = [
-          "<< /Type /Catalog /Pages 2 0 R >>",
-          "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
-          "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>",
-          "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
-          "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>",
-          `<< /Length ${encoder.encode(stream).length} >>\nstream\n${stream}endstream`,
-          "<< /Title (Seaming Overlap Report) /Author (Anamul) /Creator (Seaming Overlap Calculator) >>"
-        ];
-        let pdf = "%PDF-1.4\n";
-        const offsets = [0];
-        objects.forEach((object, index) => {
-          offsets.push(encoder.encode(pdf).length);
-          pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
-        });
-        const xref = encoder.encode(pdf).length;
-        pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
-        offsets.slice(1).forEach(offset => { pdf += `${String(offset).padStart(10, "0")} 00000 n \n`; });
-        pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R /Info 7 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
-
-        const url = URL.createObjectURL(new Blob([encoder.encode(pdf)], { type: "application/pdf" }));
+      // ---------- shared export helpers ----------
+      function saveBlob(blob, name) {
+        const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
-        const date = r.calculatedAt;
-        const stamp = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}-${String(date.getHours()).padStart(2, "0")}${String(date.getMinutes()).padStart(2, "0")}`;
         link.href = url;
-        link.download = `seaming-overlap-${r.code}-${stamp}.pdf`;
+        link.download = name;
         document.body.append(link);
         link.click();
         link.remove();
         setTimeout(() => URL.revokeObjectURL(url), 60000);
       }
+      const fileBase = now => `seaming-overlap-${codesText().replace(/[^\w-]+/g, "_")}-${stampText(now)}`;
+
+      // ---------- PDF (dependency-free, multi-page) ----------
+      function downloadPdf() {
+        if (!rows.length) return;
+        const now = new Date();
+        const ink = "0.125 0.165 0.212";
+        const muted = "0.365 0.420 0.482";
+        const blue = "0.090 0.412 0.761";
+        const head = "0.098 0.463 0.824";
+        const grid = "0.80 0.83 0.86";
+        const escapePdf = v => String(v).replace(/[^\x20-\x7E]/g, "?").replace(/([\\()])/g, "\\$1");
+
+        const colX = [50, 95, 185, 275, 365, 455, 545]; // SL, W, BH, CH, LBH, OI %
+        const labels = ["SL", "W", "BH", "CH", "LBH", "OI %"];
+        const rowH = 24, bottom = 90;
+        const firstTop = 620, nextTop = 780;
+
+        const pages = [];
+        let content = [];
+        const newPage = () => { content = []; pages.push(content); };
+        const text = (x, y, size, value, bold = false, color = ink) =>
+          content.push(`BT /${bold ? "F2" : "F1"} ${size} Tf ${color} rg 1 0 0 1 ${x} ${y} Tm (${escapePdf(value)}) Tj ET`);
+        const centered = (cx, y, size, value, bold = false, color = ink) => {
+          const w = String(value).length * size * (bold ? 0.58 : 0.55);
+          text((cx - w / 2).toFixed(1), y, size, value, bold, color);
+        };
+        const rect = (x, y, w, h, color) => content.push(`${color} rg ${x} ${y} ${w} ${h} re f`);
+        const hline = (y) => content.push(`${grid} RG 0.6 w ${colX[0]} ${y} m ${colX[6]} ${y} l S`);
+        const vlines = (yTop, yBot) => colX.forEach(x => content.push(`${grid} RG 0.6 w ${x} ${yTop} m ${x} ${yBot} l S`));
+
+        const drawHeader = top => {
+          rect(colX[0], top - rowH, colX[6] - colX[0], rowH, head);
+          labels.forEach((l, i) => centered((colX[i] + colX[i + 1]) / 2, top - 16, 11, l, true, "1 1 1"));
+        };
+
+        newPage();
+        rect(0, 834, 595, 8, blue);
+        text(50, 790, 9, "SEAMING OVERLAP REPORT", true, blue);
+        text(50, 762, 24, "Measurement Results", true);
+        text(50, 742, 10, "Can seam quality control inspection", false, muted);
+        rect(50, 650, 495, 70, "0.945 0.961 0.980");
+        rect(50, 650, 4, 70, blue);
+        [["DATE", dateText(now), 70], ["CAN CODE", codesText(), 170], ["INSPECTOR", inspectorName(), 275], ["READINGS", String(rows.length), 470]]
+          .forEach(([label, value, x]) => {
+            text(x, 696, 8, label, true, muted);
+            text(x, 674, 12, value, true);
+          });
+
+        let top = firstTop;
+        drawHeader(top);
+        let y = top - rowH;
+        let tableTop = top;
+        rows.forEach((r, i) => {
+          if (y - rowH < bottom) {
+            vlines(tableTop, y);
+            newPage();
+            top = nextTop; tableTop = top;
+            drawHeader(top);
+            y = top - rowH;
+          }
+          if (i % 2 === 1) rect(colX[0], y - rowH, colX[6] - colX[0], rowH, "0.965 0.975 0.988");
+          [i + 1, fmt3(r.W), fmt3(r.BH), fmt3(r.CH), fmt3(r.lbh), fmtPct(r.overlap)]
+            .forEach((v, c) => centered((colX[c] + colX[c + 1]) / 2, y - 16, 11, v));
+          y -= rowH;
+          hline(y);
+        });
+        vlines(tableTop, y);
+
+        pages.forEach((p, i) => {
+          content = p;
+          hline(80);
+          text(50, 60, 9, `Prepared by ${inspectorName()}  |  ${dateText(now)}`, false, muted);
+          text(50, 47, 9, "Developed by Anamul", true, muted);
+          text(485, 60, 9, `Page ${i + 1} of ${pages.length}`, false, muted);
+        });
+
+        const enc = new TextEncoder();
+        const n = pages.length;
+        // object ids: 1 catalog, 2 pages, 3 F1, 4 F2, 5 info, then (page, content) pairs
+        const objs = [];
+        objs[1] = "<< /Type /Catalog /Pages 2 0 R >>";
+        objs[2] = `<< /Type /Pages /Kids [${pages.map((_, i) => `${6 + i * 2} 0 R`).join(" ")}] /Count ${n} >>`;
+        objs[3] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>";
+        objs[4] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>";
+        objs[5] = `<< /Title (Seaming Overlap Report) /Author (${escapePdf(inspectorName())}) /Creator (Seaming Overlap Calculator) >>`;
+        pages.forEach((p, i) => {
+          const stream = p.join("\n") + "\n";
+          objs[6 + i * 2] = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${7 + i * 2} 0 R >>`;
+          objs[7 + i * 2] = `<< /Length ${enc.encode(stream).length} >>\nstream\n${stream}endstream`;
+        });
+        const total = objs.length - 1;
+        let pdf = "%PDF-1.4\n";
+        const offsets = [];
+        for (let i = 1; i <= total; i++) {
+          offsets.push(enc.encode(pdf).length);
+          pdf += `${i} 0 obj\n${objs[i]}\nendobj\n`;
+        }
+        const xref = enc.encode(pdf).length;
+        pdf += `xref\n0 ${total + 1}\n0000000000 65535 f \n`;
+        offsets.forEach(o => { pdf += `${String(o).padStart(10, "0")} 00000 n \n`; });
+        pdf += `trailer\n<< /Size ${total + 1} /Root 1 0 R /Info 5 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+        saveBlob(new Blob([enc.encode(pdf)], { type: "application/pdf" }), `${fileBase(now)}.pdf`);
+      }
+
+      // ---------- Excel (.xlsx, dependency-free, stored zip) ----------
+      const crcTable = (() => {
+        const t = new Uint32Array(256);
+        for (let n = 0; n < 256; n++) {
+          let c = n;
+          for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+          t[n] = c >>> 0;
+        }
+        return t;
+      })();
+      const crc32 = bytes => {
+        let c = 0xFFFFFFFF;
+        for (let i = 0; i < bytes.length; i++) c = crcTable[(c ^ bytes[i]) & 255] ^ (c >>> 8);
+        return (c ^ 0xFFFFFFFF) >>> 0;
+      };
+      function zipStore(files) {
+        const enc = new TextEncoder();
+        const parts = [], central = [];
+        let offset = 0;
+        const u16 = n => [n & 255, (n >>> 8) & 255];
+        const u32 = n => [n & 255, (n >>> 8) & 255, (n >>> 16) & 255, (n >>> 24) & 255];
+        files.forEach(([name, data]) => {
+          const nameB = enc.encode(name), dataB = enc.encode(data), crc = crc32(dataB);
+          const local = new Uint8Array([
+            0x50, 0x4b, 0x03, 0x04, ...u16(20), ...u16(0), ...u16(0), ...u16(0), ...u16(0x21),
+            ...u32(crc), ...u32(dataB.length), ...u32(dataB.length), ...u16(nameB.length), ...u16(0)
+          ]);
+          parts.push(local, nameB, dataB);
+          central.push(new Uint8Array([
+            0x50, 0x4b, 0x01, 0x02, ...u16(20), ...u16(20), ...u16(0), ...u16(0), ...u16(0), ...u16(0x21),
+            ...u32(crc), ...u32(dataB.length), ...u32(dataB.length), ...u16(nameB.length),
+            ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...u32(offset)
+          ]), nameB);
+          offset += local.length + nameB.length + dataB.length;
+        });
+        const cdSize = central.reduce((s, p) => s + p.length, 0);
+        const end = new Uint8Array([
+          0x50, 0x4b, 0x05, 0x06, ...u16(0), ...u16(0), ...u16(files.length), ...u16(files.length),
+          ...u32(cdSize), ...u32(offset), ...u16(0)
+        ]);
+        return new Blob([...parts, ...central, end], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        });
+      }
+      const xml = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+      function downloadXlsx() {
+        if (!rows.length) return;
+        const now = new Date();
+        const cols = "ABCDEF";
+        const str = (ref, v, s) => `<c r="${ref}" t="inlineStr" s="${s}"><is><t>${xml(v)}</t></is></c>`;
+        const num = (ref, v, s) => `<c r="${ref}" s="${s}"><v>${v}</v></c>`;
+
+        let sheetRows = "";
+        sheetRows += `<row r="1">${str("A1", "Seaming Overlap Report", 5)}</row>`;
+        sheetRows += `<row r="2">${str("A2", "Date:", 6)}${str("C2", dateText(now), 7)}</row>`;
+        sheetRows += `<row r="3">${str("A3", "Can code:", 6)}${str("C3", codesText(), 7)}</row>`;
+        sheetRows += `<row r="4">${str("A4", "Inspector name:", 6)}${str("C4", inspectorName(), 7)}</row>`;
+        sheetRows += `<row r="6">${["SL", "W", "BH", "CH", "LBH", "OI %"].map((h, i) => str(`${cols[i]}6`, h, 1)).join("")}</row>`;
+        rows.forEach((r, i) => {
+          const n = 7 + i;
+          sheetRows += `<row r="${n}">${num(`A${n}`, i + 1, 2)}${num(`B${n}`, r.W, 3)}${num(`C${n}`, r.BH, 3)}${num(`D${n}`, r.CH, 3)}${num(`E${n}`, r.lbh, 3)}${num(`F${n}`, r.overlap / 100, 4)}</row>`;
+        });
+
+        const sheet = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><cols><col min="1" max="1" width="8" customWidth="1"/><col min="2" max="6" width="14" customWidth="1"/></cols><sheetData>${sheetRows}</sheetData></worksheet>`;
+        const styles = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="0.000"/></numFmts><fonts count="4"><font><sz val="11"/><name val="Arial"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Arial"/></font><font><b/><sz val="14"/><name val="Arial"/></font><font><b/><sz val="11"/><name val="Arial"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1976D2"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFC8D0D8"/></left><right style="thin"><color rgb="FFC8D0D8"/></right><top style="thin"><color rgb="FFC8D0D8"/></top><bottom style="thin"><color rgb="FFC8D0D8"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="8"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="1" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center"/></xf><xf numFmtId="164" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center"/></xf><xf numFmtId="10" fontId="0" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center"/></xf><xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment horizontal="left"/></xf></cellXfs></styleSheet>`;
+        const files = [
+          ["[Content_Types].xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`],
+          ["_rels/.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+          ["xl/workbook.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Overlap" sheetId="1" r:id="rId1"/></sheets></workbook>`],
+          ["xl/_rels/workbook.xml.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`],
+          ["xl/styles.xml", styles],
+          ["xl/worksheets/sheet1.xml", sheet]
+        ];
+        saveBlob(zipStore(files), `${fileBase(now)}.xlsx`);
+      }
 
       $("downloadPdf").addEventListener("click", downloadPdf);
-      form.addEventListener("input", clearResult);
+      $("downloadXlsx").addEventListener("click", downloadXlsx);
+      form.addEventListener("input", e => { if (e.target.id !== "inspector") clearResult(); });
       $("can").addEventListener("change", applyCan);
       form.addEventListener("submit", calculate);
       $("reset").addEventListener("click", () => {
@@ -446,8 +568,8 @@
         $("w").focus();
       });
       $("clearHistory").addEventListener("click", () => {
-        $("history-list").replaceChildren();
-        $("history").hidden = true;
+        rows.length = 0;
+        renderTable();
       });
       applyCan();
     })();
