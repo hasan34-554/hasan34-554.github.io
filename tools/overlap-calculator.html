@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Seaming Overlap Calculator</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f6f8fb;
+      --surface: #ffffff;
+      --surface-soft: #f8fafc;
+      --text: #202a36;
+      --muted: #5d6b7b;
+      --border: #dce3eb;
+      --accent: #1769c2;
+      --accent-hover: #1059a8;
+      --accent-soft: #eaf3fc;
+      --error: #b42318;
+      --error-soft: #fff0ee;
+      --success: #1769c2;
+      --focus: #1769c2;
+      --radius: 14px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #191919;
+        --surface: #202020;
+        --surface-soft: #282826;
+        --text: #f4f4f2;
+        --muted: #c0c0bb;
+        --border: #454542;
+        --accent: #70b3ff;
+        --accent-hover: #a0ceff;
+        --accent-soft: #263747;
+        --error: #ff8c82;
+        --error-soft: #422a28;
+        --success: #9acaff;
+        --focus: #9acaff;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px 20px;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(100%, 760px); margin: 0 auto; }
+    .credit { margin: 16px 0 0; color: var(--muted); font-size: .9rem; text-align: center; }
+    .intro { margin: 0 0 16px; }
+    .eyebrow { margin: 0 0 6px; color: var(--accent); font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(1.8rem, 5vw, 2.25rem); line-height: 1.15; letter-spacing: -.03em; }
+    .intro p:last-child { max-width: 58ch; margin: 10px 0 0; color: var(--muted); }
+    .panel {
+      padding: clamp(20px, 4vw, 24px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: 0 2px 8px rgb(20 35 50 / 4%);
+    }
+    .section-heading { margin: 0 0 14px; font-size: 1.05rem; }
+    .hint { margin: 6px 0 0; color: var(--muted); font-size: .9rem; }
+    label { display: block; margin: 0 0 6px; font-size: .95rem; font-weight: 650; }
+    .label-note { color: var(--muted); font-weight: 400; }
+    select, input[type="number"] {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+    }
+    select:focus-visible, input:focus-visible, button:focus-visible, summary:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+    .can-select { max-width: 320px; }
+    .grid { display: grid; gap: 16px; }
+    .grid-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .divider { height: 1px; margin: 20px 0; border: 0; background: var(--border); }
+    .field { min-width: 0; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+    button {
+      min-height: 48px;
+      padding: 10px 18px;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      font: inherit;
+      font-weight: 650;
+      cursor: pointer;
+      transition: background-color .15s ease, border-color .15s ease;
+    }
+    button:active { transform: translateY(1px); }
+    .primary { flex: 1 1 220px; background: var(--accent); color: #fff; }
+    .primary:hover { background: var(--accent-hover); }
+    .secondary { flex: 0 1 auto; border-color: var(--border); background: var(--surface); color: var(--text); }
+    .secondary:hover { background: var(--surface-soft); }
+    .result {
+      margin-top: 24px;
+      padding: 20px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      background: var(--accent-soft);
+    }
+    .result[hidden] { display: none; }
+    .result.error { border-color: var(--error); background: var(--error-soft); color: var(--error); }
+    .result-title { margin: 0; color: var(--muted); font-size: .9rem; font-weight: 650; }
+    .result.error .result-title { color: var(--error); }
+    .result-value { margin: 2px 0 0; color: var(--success); font-size: clamp(2rem, 8vw, 2.75rem); line-height: 1.15; font-weight: 750; font-variant-numeric: tabular-nums; }
+    .result.error .result-value { color: var(--error); font-size: 1.1rem; line-height: 1.5; }
+    .calculation { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 18px 0 0; }
+    .calculation[hidden] { display: none; }
+    .calculation div { padding-top: 12px; border-top: 1px solid color-mix(in srgb, var(--accent) 25%, transparent); }
+    .calculation dt { color: var(--muted); font-size: .85rem; }
+    .calculation dd { margin: 2px 0 0; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-variant-numeric: tabular-nums; }
+    .export-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 20px; }
+    .export-actions[hidden] { display: none; }
+    .export-actions .hint { margin: 0; }
+    .formula { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px; }
+    .formula summary { width: fit-content; color: var(--accent); font-weight: 650; cursor: pointer; }
+    .formula p { margin: 10px 0 0; color: var(--muted); }
+    .formula code { display: block; margin-top: 10px; padding: 12px; border-radius: 8px; background: var(--surface-soft); color: var(--text); font: .9rem/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
+    .history { margin-top: 24px; }
+    .history[hidden] { display: none; }
+    .history-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .history-head h2 { margin: 0; font-size: 1rem; }
+    .clear-history { min-height: 40px; padding: 7px 12px; color: var(--accent); }
+    .history ol { margin: 0; padding-left: 28px; }
+    .history li { padding: 8px 0 8px 4px; border-bottom: 1px solid var(--border); color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .history li strong { color: var(--text); }
+    @media (max-width: 560px) {
+      body { padding: 24px 16px; }
+      .grid-two, .grid-three { grid-template-columns: 1fr; gap: 14px; }
+      .can-select { max-width: none; }
+      .actions { flex-direction: column; }
+      .actions .primary { flex: 0 1 auto; }
+      .actions .primary, .actions .secondary, .export-actions .secondary { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="intro">
+      <p class="eyebrow">Measurement tool</p>
+      <h1>Seaming overlap calculator</h1>
+      <p>Enter the seam measurements below to calculate overlap. Use the same unit for every measurement.</p>
+    </header>
+
+    <section class="panel" aria-label="Overlap calculator">
+      <form id="calculator" novalidate>
+        <section aria-labelledby="setup-heading">
+          <h2 class="section-heading" id="setup-heading">Can setup</h2>
+          <div class="field can-select">
+            <label for="can">Can code <span class="label-note">(optional preset)</span></label>
+            <select id="can" name="can">
+              <option value="15173">15173</option>
+              <option value="9118">9118</option>
+              <option value="custom">Custom</option>
+            </select>
+            <p class="hint" id="preset-hint">Preset thicknesses are filled in for you. You can adjust them if needed.</p>
+          </div>
+          <div class="grid grid-two" style="margin-top:16px">
+            <div class="field">
+              <label for="tb">Body thickness <span class="label-note">(tb)</span></label>
+              <input type="number" id="tb" name="tb" step="any" min="0" inputmode="decimal" required aria-describedby="preset-hint">
+            </div>
+            <div class="field">
+              <label for="tc">Cover thickness <span class="label-note">(tc)</span></label>
+              <input type="number" id="tc" name="tc" step="any" min="0" inputmode="decimal" required aria-describedby="preset-hint">
+            </div>
+          </div>
+        </section>
+
+        <hr class="divider">
+
+        <section aria-labelledby="measurements-heading">
+          <h2 class="section-heading" id="measurements-heading">Seam measurements</h2>
+          <p class="hint" style="margin-top:-8px;margin-bottom:16px">Enter all three measurements in the same unit as the thickness values.</p>
+          <div class="grid grid-three">
+            <div class="field">
+              <label for="w">Seam width <span class="label-note">(W)</span></label>
+              <input type="number" id="w" name="w" step="any" min="0" inputmode="decimal" required>
+            </div>
+            <div class="field">
+              <label for="bh">Body hook <span class="label-note">(BH)</span></label>
+              <input type="number" id="bh" name="bh" step="any" min="0" inputmode="decimal" required>
+            </div>
+            <div class="field">
+              <label for="ch">Cover hook <span class="label-note">(CH)</span></label>
+              <input type="number" id="ch" name="ch" step="any" min="0" inputmode="decimal" required>
+            </div>
+          </div>
+        </section>
+
+        <div class="actions">
+          <button class="primary" type="submit">Calculate overlap</button>
+          <button class="secondary" type="button" id="reset">Clear seam measurements</button>
+        </div>
+        <p class="hint">Clearing removes W, BH, CH, and the displayed result. Your can setup and result history stay unchanged.</p>
+      </form>
+
+      <section class="result" id="result" aria-live="polite" aria-atomic="true" hidden>
+        <p class="result-title" id="result-title">Overlap result</p>
+        <p class="result-value" id="value"></p>
+        <dl class="calculation" id="calculation" hidden>
+          <div><dt>Numerator</dt><dd id="numerator"></dd></div>
+          <div><dt>Denominator</dt><dd id="denominator"></dd></div>
+        </dl>
+        <div class="export-actions" id="export-actions" hidden>
+          <button class="secondary" type="button" id="downloadPdf">Download PDF</button>
+          <p class="hint">Save this result and its measurements as a report.</p>
+        </div>
+      </section>
+
+      <details class="formula">
+        <summary>Show formula</summary>
+        <p>Overlap is calculated as a percentage from the measurements entered above.</p>
+        <code>%OL = (BH + CH + 1.1 × tc − W) ÷ (W − (2.6 × tc + 1.1 × tb)) × 100</code>
+      </details>
+
+      <section class="history" id="history" aria-labelledby="history-heading" hidden>
+        <div class="history-head">
+          <h2 id="history-heading">Recent results</h2>
+          <button class="secondary clear-history" type="button" id="clearHistory">Clear history</button>
+        </div>
+        <ol id="history-list" aria-live="polite"></ol>
+      </section>
+    </section>
+    <footer class="credit">Developed by Anamul</footer>
+  </main>
+
+  <script>
+    (() => {
+      const $ = id => document.getElementById(id);
+      const cans = {
+        "15173": { tb: 0.28, tc: 0.26 },
+        "9118": { tb: 0.23, tc: 0.24 }
+      };
+      const form = $("calculator");
+      let lastCalculation = null;
+
+      function applyCan() {
+        const preset = cans[$("can").value];
+        if (preset) {
+          $("tb").value = preset.tb;
+          $("tc").value = preset.tc;
+          $("preset-hint").textContent = `Preset thicknesses: body ${preset.tb}, cover ${preset.tc}. You can adjust them if needed.`;
+        } else {
+          $("tb").value = "";
+          $("tc").value = "";
+          $("preset-hint").textContent = "Custom can selected. Enter the body and cover thicknesses.";
+          $("tb").focus();
+        }
+        clearResult();
+      }
+
+      function clearResult() {
+        lastCalculation = null;
+        $("export-actions").hidden = true;
+        $("result").hidden = true;
+        $("result").classList.remove("error");
+        $("calculation").hidden = true;
+      }
+
+      function showError(message, fieldId) {
+        lastCalculation = null;
+        $("export-actions").hidden = true;
+        const result = $("result");
+        result.hidden = false;
+        result.classList.add("error");
+        $("result-title").textContent = "Check your measurements";
+        $("value").textContent = message;
+        $("calculation").hidden = true;
+        if (fieldId) $(fieldId).focus();
+      }
+
+      function addHistory(code, W, BH, CH, overlap) {
+        const item = document.createElement("li");
+        const label = document.createElement("span");
+        const strong = document.createElement("strong");
+        label.textContent = `${code} · W ${W} · BH ${BH} · CH ${CH} → `;
+        strong.textContent = `${overlap.toFixed(2)}%`;
+        item.append(label, strong);
+        $("history-list").appendChild(item);
+        $("history").hidden = false;
+      }
+
+      function calculate(event) {
+        event.preventDefault();
+        const ids = ["w", "bh", "ch", "tb", "tc"];
+        const values = Object.fromEntries(ids.map(id => [id, $(id).value.trim() === "" ? NaN : Number($(id).value)]));
+        const missing = ids.find(id => !Number.isFinite(values[id]));
+        if (missing) {
+          showError("Enter a value for every measurement.", missing);
+          return;
+        }
+        const negative = ids.find(id => values[id] < 0);
+        if (negative) {
+          showError("Measurements must be zero or greater.", negative);
+          return;
+        }
+
+        const { w: W, bh: BH, ch: CH, tb, tc } = values;
+        const numerator = BH + CH + 1.1 * tc - W;
+        const denominator = W - (2.6 * tc + 1.1 * tb);
+        if (!Number.isFinite(numerator) || !Number.isFinite(denominator)) {
+          showError("These values are too large to calculate. Check and try again.");
+          return;
+        }
+        if (denominator === 0) {
+          showError("The denominator is zero with these measurements. Adjust the values and try again.");
+          return;
+        }
+        const overlap = (numerator / denominator) * 100;
+        if (!Number.isFinite(overlap)) {
+          showError("This combination cannot produce a finite result. Check the measurements.");
+          return;
+        }
+
+        const result = $("result");
+        result.hidden = false;
+        result.classList.remove("error");
+        $("result-title").textContent = "Calculated overlap";
+        $("value").textContent = `${overlap.toFixed(2)}%`;
+        $("numerator").textContent = numerator.toFixed(4);
+        $("denominator").textContent = denominator.toFixed(4);
+        $("calculation").hidden = false;
+        lastCalculation = {
+          code: $("can").value === "custom" ? "Custom" : $("can").value,
+          W, BH, CH, tb, tc, numerator, denominator, overlap,
+          calculatedAt: new Date()
+        };
+        $("export-actions").hidden = false;
+        addHistory($("can").value === "custom" ? "Custom" : $("can").value, W, BH, CH, overlap);
+      }
+
+      // A dependency-free, offline PDF report using standard PDF fonts.
+      function downloadPdf() {
+        if (!lastCalculation) return;
+        const r = lastCalculation;
+        const content = [];
+        const ink = "0.125 0.165 0.212";
+        const muted = "0.365 0.420 0.482";
+        const blue = "0.090 0.412 0.761";
+        const escapePdf = value => String(value)
+          .replace(/[^\x20-\x7E]/g, "?")
+          .replace(/([\\()])/g, "\\$1");
+        const text = (x, y, size, value, bold = false, color = ink) => {
+          content.push(`BT /${bold ? "F2" : "F1"} ${size} Tf ${color} rg 1 0 0 1 ${x} ${y} Tm (${escapePdf(value)}) Tj ET`);
+        };
+        const rect = (x, y, width, height, color) => content.push(`${color} rg ${x} ${y} ${width} ${height} re f`);
+        const line = (x1, y1, x2, y2) => content.push(`0.86 0.89 0.92 RG 0.7 w ${x1} ${y1} m ${x2} ${y2} l S`);
+        const calculated = r.calculatedAt.toLocaleString("en-GB", {
+          year: "numeric", month: "2-digit", day: "2-digit",
+          hour: "2-digit", minute: "2-digit", hour12: false
+        });
+
+        text(50, 789, 10, "SEAMING OVERLAP REPORT", true, blue);
+        text(50, 752, 26, "Measurement result", true);
+        text(50, 727, 10, `Calculated: ${calculated} (local time)`, false, muted);
+        text(50, 705, 11, `Can code: ${r.code}`, true);
+
+        rect(50, 570, 495, 108, "0.918 0.953 0.988");
+        text(70, 648, 11, "Calculated overlap", true, muted);
+        const percentage = `${r.overlap.toFixed(2)}%`;
+        text(70, 599, percentage.length > 14 ? 26 : 36, percentage, true, blue);
+
+        text(50, 537, 15, "Input measurements", true);
+        const rows = [
+          ["Body thickness (tb)", r.tb], ["Cover thickness (tc)", r.tc],
+          ["Seam width (W)", r.W], ["Body hook (BH)", r.BH],
+          ["Cover hook (CH)", r.CH]
+        ];
+        rows.forEach(([label, value], index) => {
+          const y = 508 - index * 31;
+          text(50, y, 11, label, false, muted);
+          text(350, y, 11, value, true);
+          line(50, y - 11, 545, y - 11);
+        });
+        text(50, 339, 10, "All measurements use the same unit entered in the calculator.", false, muted);
+
+        text(50, 302, 15, "Calculation details", true);
+        text(50, 278, 10, "%OL = (BH + CH + 1.1 * tc - W)");
+        text(50, 261, 10, "      / (W - (2.6 * tc + 1.1 * tb)) * 100");
+        text(50, 228, 11, "Numerator", false, muted);
+        text(350, 228, 11, r.numerator.toFixed(4), true);
+        text(50, 205, 11, "Denominator", false, muted);
+        text(350, 205, 11, r.denominator.toFixed(4), true);
+
+        line(50, 86, 545, 86);
+        text(50, 63, 10, "Developed by Anamul", true, muted);
+        text(465, 63, 10, "Page 1 of 1", false, muted);
+
+        const stream = content.join("\n") + "\n";
+        const encoder = new TextEncoder();
+        const objects = [
+          "<< /Type /Catalog /Pages 2 0 R >>",
+          "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+          "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>",
+          "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+          "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>",
+          `<< /Length ${encoder.encode(stream).length} >>\nstream\n${stream}endstream`,
+          "<< /Title (Seaming Overlap Report) /Author (Anamul) /Creator (Seaming Overlap Calculator) >>"
+        ];
+        let pdf = "%PDF-1.4\n";
+        const offsets = [0];
+        objects.forEach((object, index) => {
+          offsets.push(encoder.encode(pdf).length);
+          pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
+        });
+        const xref = encoder.encode(pdf).length;
+        pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+        offsets.slice(1).forEach(offset => { pdf += `${String(offset).padStart(10, "0")} 00000 n \n`; });
+        pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R /Info 7 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+
+        const url = URL.createObjectURL(new Blob([encoder.encode(pdf)], { type: "application/pdf" }));
+        const link = document.createElement("a");
+        const date = r.calculatedAt;
+        const stamp = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}-${String(date.getHours()).padStart(2, "0")}${String(date.getMinutes()).padStart(2, "0")}`;
+        link.href = url;
+        link.download = `seaming-overlap-${r.code}-${stamp}.pdf`;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+      }
+
+      $("downloadPdf").addEventListener("click", downloadPdf);
+      form.addEventListener("input", clearResult);
+      $("can").addEventListener("change", applyCan);
+      form.addEventListener("submit", calculate);
+      $("reset").addEventListener("click", () => {
+        ["w", "bh", "ch"].forEach(id => { $(id).value = ""; });
+        clearResult();
+        $("w").focus();
+      });
+      $("clearHistory").addEventListener("click", () => {
+        $("history-list").replaceChildren();
+        $("history").hidden = true;
+      });
+      applyCan();
+    })();
+  </script>
+</body>
+</html>
