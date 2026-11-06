@@ -35,5 +35,20 @@ const TOOLS = [
     ],
     link: "tools/overlap-calculator.html",
     linkText: "Open calculator"
+  },
+  {
+    name: "Brix / Soluble Solids Calculator",
+    category: "Food Quality",
+    description: "Convert a sample's mass and refractometer reading into soluble-solids and water mass for quick quality checks.",
+    icon: "🍎",
+    image: "",
+    specs: [
+      "Measures: Soluble solids mass",
+      "Inputs: Sample mass and Brix",
+      "Output: Solids and water mass",
+      "Units: g, kg or any consistent mass unit"
+    ],
+    link: "tools/brix-calculator.html",
+    linkText: "Open calculator"
   }
 ];
