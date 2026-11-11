@@ -35,8 +35,28 @@
     const href = safeUrl(url);
     if (!href) return "";
     const external = FILE_LINK.test(href) || /^https?:/i.test(href);
-    const attrs = external ? ' target="_blank" rel="noopener"' : "";
+    const attrs = (external ? ' target="_blank" rel="noopener"' : "") + (/^https?:/i.test(href) ? "" : " data-check");
     return `<a class="btn btn-primary${extraClass ? " " + extraClass : ""}" href="${escapeHtml(href)}"${attrs}>${escapeHtml(text)} <span aria-hidden="true">${external ? "↗" : "→"}</span></a>`;
+  }
+
+  /* ---------- missing-file guard ----------
+     If a linked page or PDF returns 404 on the live site, replace the
+     button with a disabled "Coming soon" label instead of a dead link. */
+  function checkLinks(root) {
+    if (!root || typeof fetch !== "function") return;
+    root.querySelectorAll("a[data-check]").forEach(link => {
+      fetch(link.getAttribute("href"), { method: "HEAD" })
+        .then(response => {
+          if (response.status !== 404) return;
+          console.warn("Missing file on site:", link.getAttribute("href"));
+          const label = document.createElement("span");
+          label.className = "btn btn-disabled";
+          label.setAttribute("aria-disabled", "true");
+          label.textContent = "Coming soon";
+          link.replaceWith(label);
+        })
+        .catch(() => {}); // offline or opened as a local file: leave the link alone
+    });
   }
 
   /* ---------- tools ---------- */
@@ -110,6 +130,7 @@
       empty.hidden = visible.length > 0;
     }
     renderFilters(tools, category);
+    checkLinks(grid);
   }
 
   /* ---------- research & documentation ---------- */
@@ -141,6 +162,7 @@
     grid.innerHTML = items && items.length
       ? items.map(renderResearchCard).join("")
       : `<p class="empty">Documents could not be loaded. Please refresh the page or contact me directly.</p>`;
+    checkLinks(grid);
   }
 
   /* ---------- page chrome ---------- */
