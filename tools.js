@@ -62,7 +62,7 @@ const TOOLS = [
     linkText: "Open calculator"
   },
   {
-    name: "Pineapple Canning QC Calculator",
+    name: "Brix Sugar Water Ratio Calculator",
     category: "Food Quality",
     description: "Estimate fruit solids, syrup solids, required syrup Brix and sugar quantity for pineapple canning batches.",
     useCase: "Hitting a target Brix in the can depends on fruit solids, juice and syrup working together, and the sums are easy to get wrong during a busy batch.",
@@ -75,7 +75,7 @@ const TOOLS = [
       "Output: Syrup and sugar requirements",
       "Action: Print the calculation"
     ],
-    link: "tools/pineapple-brix-calculator.html",
+    link: "tools/Pineapple%20bricks%20claculator.html",
     linkText: "Open calculator"
   }
 ];
